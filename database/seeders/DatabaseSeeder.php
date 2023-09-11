@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\House;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,11 +12,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\House::factory(10)->create();
+        $csvFile = fopen(base_path("storage/data.csv"), "r");
 
-        // \App\Models\House::factory()->create([
-        //     'name' => 'Test House',
-        //     'email' => 'test@example.com',
-        // ]);
+        $isFirstLine = true;
+        while (($data = fgetcsv($csvFile, 2000, ",")) !== FALSE) {
+            if (!$isFirstLine) {
+                House::factory()->create([
+                    "name" => $data['0'],
+                    "price" => $data['1'],
+                    'bedrooms' => $data['2'],
+                    'bathrooms' => $data['3'],
+                    'storeys' => $data['4'],
+                    'garages' => $data['5'],
+                ]);
+            }
+            $isFirstLine = false;
+        }
+
+        fclose($csvFile);
     }
 }
